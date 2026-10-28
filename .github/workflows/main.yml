@@ -15,40 +15,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Download project source
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Install Node.js without dependency caching
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
 
-      # 3. Install Java for Android builds
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "21"
 
-      # 4. Configure Android SDK
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
 
-      # 5. Install project dependencies
       - name: Install web dependencies
         run: npm install --no-audit --no-fund
 
-      # 6. Install Capacitor
       - name: Install Capacitor
         run: npm install @capacitor/core @capacitor/cli @capacitor/android
 
-      # 7. Build React and Vite application
       - name: Build web application
         run: npm run build
 
-      # 8. Configure Capacitor
       - name: Create Capacitor configuration
         run: |
           cat > capacitor.config.json <<'EOF'
@@ -59,22 +51,18 @@ jobs:
           }
           EOF
 
-      # 9. Generate Android project
       - name: Create Android project
         run: npx cap add android
 
-      # 10. Copy web files into Android project
       - name: Sync Android project
         run: npx cap sync android
 
-      # 11. Build APK
       - name: Build debug APK
         run: |
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
 
-      # 12. Upload APK to GitHub Actions
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
